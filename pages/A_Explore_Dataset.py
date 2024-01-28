@@ -1,3 +1,4 @@
+from collections import UserString
 import streamlit as st                  
 import pandas as pd
 import plotly.express as px
@@ -14,24 +15,47 @@ st.markdown("### Homework 0 - Introduction to Streamlit")
 
 st.markdown('# Explore Dataset')
 
-###################### FETCH DATASET #######################
 
-# Dataset upload
+def load_data(uploaded_file):
+    if uploaded_file is not None:
+        df = pd.read_csv(uploaded_file)
+        st.session_state['df'] = df  # Store the dataframe in session state
+    else:
+        st.warning("Please upload a CSV file.")
 
-###################### EXPLORE DATASET #######################
+def display_dataframe(df):
+    if df is not None:
+        st.markdown("### Dataset Features")
+        st.write(df.info())
+        st.markdown("### Dataset Preview")
+        st.dataframe(df)
+    else:
+        st.error("No dataset available to display.")
 
-# Restore dataset if already in memory
+def create_histogram(df, feature):
+    fig = px.histogram(df, x=feature, title=f'Histogram of {feature}')
+    st.plotly_chart(fig)
 
-# Display feature names and descriptions 
+def main():
+    st.title("Data Exploration App")
 
-# Display dataframe as table
+    # Step 2: File uploader
+    uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
+    if 'df' not in st.session_state or uploaded_file is not None:
+        load_data(uploaded_file)
 
-#X = df
+    # Display dataframe
+    if 'df' in st.session_state:
+        display_dataframe(st.session_state['df'])
 
-###################### VISUALIZE DATASET #######################
+        # Step 5: Visualize features in histogram chart
+        st.sidebar.header("Create Histogram Plot")
+        st.sidebar.header("Specify Input Parameters")
+        numeric_columns = list(st.session_state['df'].select_dtypes(['float', 'int']).columns)
+        selected_feature = st.sidebar.selectbox("Select Feature for Histogram", numeric_columns)
+        
+        create_histogram(st.session_state['df'], selected_feature)
 
-# Collect user plot selection
+if __name__ == "__main__":
+    main()
 
-# Specify Input Parameters
-
-# Plot Histogram
